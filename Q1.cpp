@@ -1,26 +1,25 @@
 #include <iostream>
-#include <chrono>
+#include <ctime>
 #include <vector>
 
-long long fibonacci_recursive(int n, int a, int b) {
-    if (n == 1) return b;
-    if (n == 0) return a;
-    return fibonacci_recursive(n - 1, b, a+b);
+long long fibonacci_recursive(int n) {
+    if (n <= 1) return n;
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n-2);
 }
 
 void print_fibonacci_recursive() {
-    for (int i = 0; i < 45; i++) {
-        std::cout << fibonacci_recursive(i, 0, 1) << " ";
+    for (int i = 0; i < 50; i++) {
+        std::cout << fibonacci_recursive(i) << " ";
     }
     std::cout << std::endl;
 }
 void print_fibonacci_loop() {
     std::cout << "0 ";
-    for (int j = 1; j < 45; ++j) {
-        int a = 0;
-        int b = 1;
+    for (int j = 1; j < 50; ++j) {
+        long long a = 0;
+        long long b = 1;
         for (int i = 2; i <= j; i++) {
-            int c = a + b;
+            long long c = a + b;
             a = b;
             b = c;
         }
@@ -28,7 +27,7 @@ void print_fibonacci_loop() {
     }
      std::cout << std::endl;
 }
-std::vector<long long> memo(45, -1);
+std::vector<long long> memo(50, -1);
 
 long long fibonacci_memoization(int n) {
     if (n <= 1) return n;
@@ -38,21 +37,21 @@ long long fibonacci_memoization(int n) {
 }
 
 void print_fibonacci_memoization() {
-    for (int i = 0; i < 45; i++) {
+    for (int i = 0; i < 50; i++) {
         std::cout << fibonacci_memoization(i) << " ";
     }
     std::cout << std::endl;
 }
 void print_fibonacci_loop_memoization() {
-    std::vector<long long> fib(45);
+    std::vector<long long> fib(50);
     fib[0] = 0;
     fib[1] = 1;
 
-    for (int i = 2; i < 45; i++) {
+    for (int i = 2; i < 50; i++) {
         fib[i] = fib[i - 1] + fib[i - 2];
     }
 
-    for (int i = 0; i < 45; i++) {
+    for (int i = 0; i < 50; i++) {
         std::cout << fib[i] << " ";
     }
     std::cout << std::endl;
@@ -60,37 +59,48 @@ void print_fibonacci_loop_memoization() {
 
 int main() {
     // Time measurement for recursion
-    auto start = std::chrono::high_resolution_clock::now();
+    long sec, nano;
+    double trec, tloop, trecm, tloopm;
+    struct timespec start,end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
     print_fibonacci_recursive();
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time_recursive = end - start;
-    std::cout << "Time taken by recursion: " << time_recursive.count() << " seconds" << std::endl;
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    sec = end.tv_sec - start.tv_sec;
+    nano = end.tv_nsec - start.tv_nsec;
+    trec = sec + nano * 1e-9;
+    std::cout << "Time taken by recursion: " << trec << " seconds" << std::endl;
 
     // Time measurement for loop
-    start = std::chrono::high_resolution_clock::now();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     print_fibonacci_loop();
-    end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time_loop = end - start;
-    std::cout << "Time taken by loop: " << time_loop.count() << " seconds" << std::endl;
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    sec = end.tv_sec - start.tv_sec;
+    nano = end.tv_nsec - start.tv_nsec;
+    tloop = sec + nano * 1e-9;
+    std::cout << "Time taken by loop: " << tloop << " seconds" << std::endl;
 
     // Time measurement for recursion with memoization
-    start = std::chrono::high_resolution_clock::now();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     print_fibonacci_memoization();
-    end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time_rec_memo = end - start;
-    std::cout << "Time taken by recursion with memoization: " << time_rec_memo.count() << " seconds" << std::endl;
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    sec = end.tv_sec - start.tv_sec;
+    nano = end.tv_nsec - start.tv_nsec;
+    trecm = sec + nano * 1e-9;
+    std::cout << "Time taken by recursion with memoization: " << trecm << " seconds" << std::endl;
 
     // Time measurement for loop with memoization
-    start = std::chrono::high_resolution_clock::now();
+    clock_gettime(CLOCK_MONOTONIC, &start);
     print_fibonacci_loop_memoization();
-    end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time_loop_memo = end - start;
-    std::cout << "Time taken by loop with memoization: " << time_loop_memo.count() << " seconds" << std::endl;
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    sec = end.tv_sec - start.tv_sec;
+    nano = end.tv_nsec - start.tv_nsec;
+    tloopm = sec + nano * 1e-9;
+    std::cout << "Time taken by loop with memoization: " << tloopm << " seconds" << std::endl;
 
     // Calculate and display speedups
-    std::cout << "Speedup of loop over recursion: " << time_recursive.count() / time_loop.count() << std::endl;
-    std::cout << "Speedup of recursion with memoization over recursion: " << time_recursive.count() / time_rec_memo.count() << std::endl;
-    std::cout << "Speedup of loop with memoization over recursion: " << time_recursive.count() / time_loop_memo.count() << std::endl;
+    std::cout << "Speedup of loop over recursion: " << trec / tloop << std::endl;
+    std::cout << "Speedup of recursion with memoization over recursion: " << trec / trecm << std::endl;
+    std::cout << "Speedup of loop with memoization over recursion: " << trec / tloopm << std::endl;
 
     return 0;
 }
